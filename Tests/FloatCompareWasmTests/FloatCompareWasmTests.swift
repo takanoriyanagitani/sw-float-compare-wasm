@@ -1,17 +1,17 @@
 import Testing
 
-import typealias FloatCompareWasm.IO
 import typealias FloatCompareWasm.CompareFloat
+import typealias FloatCompareWasm.IO
 
 @testable import struct FloatCompareWasm.CompareFloatConfig
 
 struct CompareFloatConfigTests_wat2compare {
 
   @Test
-  func invalidWat(){
+  func invalidWat() {
     let invalidWat: String = """
-      (module
-    """
+          (module
+      """
 
     let cfg: CompareFloatConfig = .newInstance()
     let icmp: IO<CompareFloat> = cfg.wat2compare(invalidWat)
@@ -23,11 +23,11 @@ struct CompareFloatConfigTests_wat2compare {
   }
 
   @Test
-  func noFunc(){
+  func noFunc() {
     let wat: String = """
-      (module
-      )
-    """
+        (module
+        )
+      """
 
     let cfg: CompareFloatConfig = .newInstance()
     let icmp: IO<CompareFloat> = cfg.wat2compare(wat)
@@ -39,16 +39,16 @@ struct CompareFloatConfigTests_wat2compare {
   }
 
   @Test
-  func dummyEqual(){
+  func dummyEqual() {
     let wat: String = """
-      (module
-        (func $cmp32f (param $_x f32) (param $_y f32) (result i32)
-          i32.const 0
-        )
+        (module
+          (func $cmp32f (param $_x f32) (param $_y f32) (result i32)
+            i32.const 0
+          )
 
-        (export "compare_float32" (func $cmp32f))
-      )
-    """
+          (export "compare_float32" (func $cmp32f))
+        )
+      """
 
     let cfg: CompareFloatConfig = .newInstance()
     let icmp: IO<CompareFloat> = cfg.wat2compare(wat)
@@ -60,16 +60,16 @@ struct CompareFloatConfigTests_wat2compare {
   }
 
   @Test
-  func dummyNotEqual(){
+  func dummyNotEqual() {
     let wat: String = """
-      (module
-        (func $cmp32f (param $_x f32) (param $_y f32) (result i32)
-          i32.const 42
-        )
+        (module
+          (func $cmp32f (param $_x f32) (param $_y f32) (result i32)
+            i32.const 42
+          )
 
-        (export "compare_float32" (func $cmp32f))
-      )
-    """
+          (export "compare_float32" (func $cmp32f))
+        )
+      """
 
     let cfg: CompareFloatConfig = .newInstance()
     let icmp: IO<CompareFloat> = cfg.wat2compare(wat)
@@ -82,16 +82,16 @@ struct CompareFloatConfigTests_wat2compare {
   }
 
   @Test
-  func unexpectedArg(){
+  func unexpectedArg() {
     let wat: String = """
-      (module
-        (func $cmp32f (param $_x i32) (param $_y f32) (result i32)
-          i32.const 42
-        )
+        (module
+          (func $cmp32f (param $_x i32) (param $_y f32) (result i32)
+            i32.const 42
+          )
 
-        (export "compare_float32" (func $cmp32f))
-      )
-    """
+          (export "compare_float32" (func $cmp32f))
+        )
+      """
 
     let cfg: CompareFloatConfig = .newInstance()
     let icmp: IO<CompareFloat> = cfg.wat2compare(wat)
@@ -105,16 +105,16 @@ struct CompareFloatConfigTests_wat2compare {
   }
 
   @Test
-  func unexpectedReturn(){
+  func unexpectedReturn() {
     let wat: String = """
-      (module
-        (func $cmp32f (param $_x f32) (param $_y f32) (result f32)
-          f32.const 42.0
-        )
+        (module
+          (func $cmp32f (param $_x f32) (param $_y f32) (result f32)
+            f32.const 42.0
+          )
 
-        (export "compare_float32" (func $cmp32f))
-      )
-    """
+          (export "compare_float32" (func $cmp32f))
+        )
+      """
 
     let cfg: CompareFloatConfig = .newInstance()
     let icmp: IO<CompareFloat> = cfg.wat2compare(wat)
@@ -128,34 +128,34 @@ struct CompareFloatConfigTests_wat2compare {
   }
 
   @Test
-  func almostEqual(){
+  func almostEqual() {
     let ratiop: Float32 = 1.0
     let wat: String = """
-      (module
-        (func $cmp32f (param $x f32) (param $y f32) (result i32)
-          ;; computes absolute difference
-          local.get $x
-          local.get $y
-          f32.sub
-          f32.abs
+        (module
+          (func $cmp32f (param $x f32) (param $y f32) (result i32)
+            ;; computes absolute difference
+            local.get $x
+            local.get $y
+            f32.sub
+            f32.abs
 
-          local.get $x
-          local.get $y
-          f32.max
+            local.get $x
+            local.get $y
+            f32.max
 
-          ;; computes ratio: abs(x-y)/max(x,y), unit: %
-          f32.div
-          f32.const 100.0
-          f32.mul
+            ;; computes ratio: abs(x-y)/max(x,y), unit: %
+            f32.div
+            f32.const 100.0
+            f32.mul
 
-          ;; returns 0 if the ratio < 1%
-          f32.const \( ratiop )
-          f32.gt
+            ;; returns 0 if the ratio < 1%
+            f32.const \( ratiop )
+            f32.gt
+          )
+
+          (export "compare_float32" (func $cmp32f))
         )
-
-        (export "compare_float32" (func $cmp32f))
-      )
-    """
+      """
 
     let cfg: CompareFloatConfig = .newInstance()
     let icmp: IO<CompareFloat> = cfg.wat2compare(wat)
